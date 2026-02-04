@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ClawDNA - Agent Evolution Platform</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .controls {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            color: white;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+        }
+        
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.8;
+            margin-bottom: 5px;
+        }
+        
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+        }
+        
+        .charts {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .chart-container {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 15px;
+        }
+        
+        .chart-title {
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .best-agent {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 15px;
+        }
+        
+        .best-agent h2 {
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .traits {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+        }
+        
+        .trait {
+            background: rgba(255,255,255,0.1);
+            padding: 10px;
+            border-radius: 10px;
+        }
+        
+        .trait-name {
+            font-size: 0.9em;
+            opacity: 0.8;
+            margin-bottom: 5px;
+        }
+        
+        .trait-bar {
+            background: rgba(255,255,255,0.2);
+            height: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .trait-fill {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            height: 100%;
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8em;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .loading.active {
+            display: block;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🧬 ClawDNA</h1>
+            <div class="subtitle">Agent Evolution Platform - Live Demo</div>
+        </header>
+        
+        <div class="controls">
+            <button onclick="initPopulation()" id="initBtn">Initialize Population</button>
+            <button onclick="evolveOnce()" id="evolveBtn" disabled>Evolve Generation</button>
+            <button onclick="autoEvolve()" id="autoBtn" disabled>Auto Evolve (10x)</button>
+        </div>
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <div>Evolving...</div>
+        </div>
+        
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-label">Generation</div>
+                <div class="stat-value" id="generation">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Population Size</div>
+                <div class="stat-value" id="populationSize">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Avg Fitness</div>
+                <div class="stat-value" id="avgFitness">0.00</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Max Fitness</div>
+                <div class="stat-value" id="maxFitness">0.00</div>
+            </div>
+        </div>
+        
+        <div class="charts">
+            <div class="chart-container">
+                <div class="chart-title">Fitness Evolution</div>
+                <canvas id="fitnessChart"></canvas>
+            </div>
+            <div class="chart-container">
+                <div class="chart-title">Population Distribution</div>
+                <canvas id="distributionChart"></canvas>
+            </div>
+        </div>
+        
+        <div class="best-agent" id="bestAgent" style="display: none;">
+            <h2>🏆 Best Agent</h2>
+            <div style="text-align: center; margin-bottom: 15px;">
+                <strong>Generation:</strong> <span id="bestGeneration">-</span> | 
+                <strong>Fitness:</strong> <span id="bestFitness">-</span>
+            </div>
+            <div class="traits" id="traits"></div>
+        </div>
+    </div>
+    
+    <script>
+        let fitnessChart, distributionChart;
+        let isEvolving = false;
+        
+        // Initialize charts
+        const fitnessCtx = document.getElementById('fitnessChart').getContext('2d');
+        fitnessChart = new Chart(fitnessCtx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Average Fitness',
+                    data: [],
+                    borderColor: 'rgb(102, 126, 234)',
+                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                    tension: 0.4
+                }, {
+                    label: 'Max Fitness',
+                    data: [],
+                    borderColor: 'rgb(118, 75, 162)',
+                    backgroundColor: 'rgba(118, 75, 162, 0.1)',
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        labels: { color: 'white' }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: { color: 'white' },
+                        grid: { color: 'rgba(255,255,255,0.1)' }
+                    },
+                    y: {
+                        ticks: { color: 'white' },
+                        grid: { color: 'rgba(255,255,255,0.1)' }
+                    }
+                }
+            }
+        });
+        
+        const distributionCtx = document.getElementById('distributionChart').getContext('2d');
+        distributionChart = new Chart(distributionCtx, {
+            type: 'bar',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Agent Fitness',
+                    data: [],
+                    backgroundColor: 'rgba(102, 126, 234, 0.8)',
+                    borderColor: 'rgb(102, 126, 234)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        labels: { color: 'white' }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: { color: 'white' },
+                        grid: { color: 'rgba(255,255,255,0.1)' }
+                    },
+                    y: {
+                        ticks: { color: 'white' },
+                        grid: { color: 'rgba(255,255,255,0.1)' }
+                    }
+                }
+            }
+        });
+        
+        async function initPopulation() {
+            const response = await fetch('/api/init');
+            const data = await response.json();
+            
+            if (data.success) {
+                document.getElementById('evolveBtn').disabled = false;
+                document.getElementById('autoBtn').disabled = false;
+                updateStatus();
+            }
+        }
+        
+        async function evolveOnce() {
+            if (isEvolving) return;
+            isEvolving = true;
+            document.getElementById('loading').classList.add('active');
+            
+            const response = await fetch('/api/evolve');
+            const data = await response.json();
+            
+            if (data.success) {
+                updateStatus();
+                updateCharts(data.history);
+            }
+            
+            isEvolving = false;
+            document.getElementById('loading').classList.remove('active');
+        }
+        
+        async function autoEvolve() {
+            for (let i = 0; i < 10; i++) {
+                await evolveOnce();
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+        }
+        
+        async function updateStatus() {
+            const response = await fetch('/api/status');
+            const data = await response.json();
+            
+            if (data.initialized) {
+                document.getElementById('generation').textContent = data.generation;
+                document.getElementById('populationSize').textContent = data.population_size;
+                
+                const latest = data.history[data.history.length - 1];
+                document.getElementById('avgFitness').textContent = latest.avg_fitness.toFixed(2);
+                document.getElementById('maxFitness').textContent = latest.max_fitness.toFixed(2);
+                
+                // Update best agent
+                const bestAgent = data.best_agent;
+                document.getElementById('bestAgent').style.display = 'block';
+                document.getElementById('bestGeneration').textContent = bestAgent.generation;
+                document.getElementById('bestFitness').textContent = bestAgent.fitness.toFixed(2);
+                
+                // Update traits
+                const traitsContainer = document.getElementById('traits');
+                traitsContainer.innerHTML = '';
+                for (const [name, value] of Object.entries(bestAgent.traits)) {
+                    const traitDiv = document.createElement('div');
+                    traitDiv.className = 'trait';
+                    traitDiv.innerHTML = `
+                        <div class="trait-name">${name}</div>
+                        <div class="trait-bar">
+                            <div class="trait-fill" style="width: ${value * 100}%">
+                                ${value.toFixed(2)}
+                            </div>
+                        </div>
+                    `;
+                    traitsContainer.appendChild(traitDiv);
+                }
+                
+                // Update distribution chart
+                const agentsResponse = await fetch('/api/agents');
+                const agentsData = await agentsResponse.json();
+                updateDistributionChart(agentsData.agents);
+            }
+        }
+        
+        function updateCharts(history) {
+            const labels = history.map(h => `Gen ${h.generation}`);
+            const avgData = history.map(h => h.avg_fitness);
+            const maxData = history.map(h => h.max_fitness);
+            
+            fitnessChart.data.labels = labels;
+            fitnessChart.data.datasets[0].data = avgData;
+            fitnessChart.data.datasets[1].data = maxData;
+            fitnessChart.update();
+        }
+        
+        function updateDistributionChart(agents) {
+            const labels = agents.map((a, i) => `Agent ${i + 1}`);
+            const data = agents.map(a => a.fitness);
+            
+            distributionChart.data.labels = labels;
+            distributionChart.data.datasets[0].data = data;
+            distributionChart.update();
+        }
+    </script>
+</body>
+</html>
