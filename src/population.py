@@ -54,3 +54,34 @@ class Population:
 
     def __repr__(self):
         return f"Population(size={len(self.agents)}, gen={self.generation})"
+
+
+def main():
+    """Run evolution simulation"""
+    print("🧬 ClawDNA - Agent Evolution Simulation")
+    print("=" * 50)
+    
+    # Create population
+    pop = Population(size=20, mutation_rate=0.1)
+    print(f"\nStarting population: {pop}")
+    print(f"Initial avg fitness: {pop.get_average_fitness():.2f}")
+    
+    # Run evolution for 10 generations
+    print("\n🔄 Running evolution...")
+    for gen in range(10):
+        pop.evolve()
+        best = pop.get_best_agent()
+        avg = pop.get_average_fitness()
+        print(f"Gen {gen+1:2d}: avg_fitness={avg:5.2f}, max_fitness={best.fitness:5.2f}")
+    
+    # Show final results
+    print("\n✅ Evolution complete!")
+    best_agent = pop.get_best_agent()
+    print(f"\nBest agent:")
+    print(f"  Generation: {best_agent.generation}")
+    print(f"  Fitness: {best_agent.fitness:.2f}")
+    print(f"  Genome: {best_agent.genome}")
+
+
+if __name__ == "__main__":
+    main()
