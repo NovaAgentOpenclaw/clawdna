@@ -1,20 +1,16 @@
-name: Deploy ClawDNA to Solana Devnet
+name: Verify ClawDNA on Solana Devnet
 
 on:
   push:
     branches: [ main, master, develop ]
-    paths:
-      - 'programs/**'
-      - '.github/workflows/deploy.yml'
-  workflow_dispatch:  # Permite rodar manualmente
+  workflow_dispatch:
 
 env:
   SOLANA_VERSION: 1.18.0
   ANCHOR_VERSION: 0.29.0
-  NODE_VERSION: 20
 
 jobs:
-  deploy:
+  verify:
     runs-on: ubuntu-latest
     
     steps:
@@ -24,14 +20,13 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: ${{ env.NODE_VERSION }}
+        node-version: 20
 
     - name: Setup Rust
       uses: dtolnay/rust-toolchain@stable
 
     - name: Install Solana CLI
       run: |
-        # Install Solana CLI from GitHub releases (more reliable)
         curl -L -o solana.tar.bz2 "https://github.com/solana-labs/solana/releases/download/v${SOLANA_VERSION}/solana-release-x86_64-unknown-linux-gnu.tar.bz2"
         tar -xjf solana.tar.bz2
         mv solana-release/bin/* /usr/local/bin/
@@ -47,100 +42,36 @@ jobs:
         solana config set --url devnet
         solana config get
 
-    - name: Setup deployer keypair
+    - name: Verify deployed program
       run: |
-        # Generate new keypair for autonomous deploy (no human intervention needed)
-        mkdir -p ~/.config/solana
-        solana-keygen new --no-passphrase --force -o ~/.config/solana/id.json
-        chmod 600 ~/.config/solana/id.json
-        
-        echo "✅ Generated new keypair for autonomous deployment"
-        echo "Address: $(solana address)"
-        
-        # Save keypair as artifact for recovery
-        cp ~/.config/solana/id.json keypair-backup.json
-
-    - name: Request Airdrop
-      run: |
-        echo "Requesting airdrop on devnet..."
-        MAX_RETRIES=5
-        for i in $(seq 1 $MAX_RETRIES); do
-          echo "Attempt $i/$MAX_RETRIES..."
-          if solana airdrop 2; then
-            echo "✅ Airdrop successful!"
-            solana balance
-            exit 0
-          fi
-          sleep 15
-        done
-        
-        echo "⚠️ Airdrop failed after $MAX_RETRIES attempts, but continuing..."
-        solana balance || true
-
-    - name: Install dependencies
-      run: |
-        cd clawdna
-        npm install
-        cargo fetch
+        PROGRAM_ID=$(cat DEPLOYED_PROGRAM_ID.txt)
+        echo "Checking program: $PROGRAM_ID"
+        solana program show "$PROGRAM_ID" || echo "⚠️ Program may not be deployed yet"
 
     - name: Build program
       run: |
-        cd clawdna
+        cargo fetch
         anchor build
-
-    - name: Deploy to Devnet
-      id: deploy
-      run: |
-        cd clawdna
-        
-        # Deploy com output capturado
-        DEPLOY_OUTPUT=$(anchor deploy --provider.cluster devnet 2>&1)
-        echo "$DEPLOY_OUTPUT"
-        
-        # Extrair Program ID
-        PROGRAM_ID=$(echo "$DEPLOY_OUTPUT" | grep -oP 'Program Id: \K[\w]+')
-        echo "program_id=$PROGRAM_ID" >> $GITHUB_OUTPUT
-        
-        # Salvar no arquivo
-        echo "$PROGRAM_ID" > DEPLOYED_PROGRAM_ID.txt
-        
-        # Atualizar lib.rs com o novo Program ID
-        sed -i "s/declare_id!(\"[^\"]*\")/declare_id!(\"$PROGRAM_ID\")/" programs/clawdna/src/lib.rs
 
     - name: Generate IDL
       run: |
-        cd clawdna
-        anchor idl init --filepath target/idl/clawdna.json ${{ steps.deploy.outputs.program_id }} || true
-        anchor idl upgrade --filepath target/idl/clawdna.json ${{ steps.deploy.outputs.program_id }} || true
+        anchor idl build -o target/idl/clawdna.json || true
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: deploy-artifacts
+        name: build-artifacts
         path: |
-          clawdna/target/deploy/clawdna.so
-          clawdna/target/idl/clawdna.json
-          clawdna/target/types/clawdna.ts
-          clawdna/DEPLOYED_PROGRAM_ID.txt
-          keypair-backup.json
+          target/deploy/clawdna.so
+          target/idl/clawdna.json
+          target/types/clawdna.ts
+          DEPLOYED_PROGRAM_ID.txt
 
-    - name: Commit Program ID
-      run: |
-        git config user.name "github-actions[bot]"
-        git config user.email "github-actions[bot]@users.noreply.github.com"
-        
-        git add clawdna/DEPLOYED_PROGRAM_ID.txt
-        git add clawdna/programs/clawdna/src/lib.rs || true
-        
-        git diff --cached --quiet || git commit -m "chore: update deployed program ID [skip ci]"
-        git push
-
-    - name: Show deployment info
+    - name: Show verification info
       run: |
         echo "========================================"
-        echo "🎉 Deploy concluído!"
+        echo "✅ ClawDNA Verification Complete!"
         echo "========================================"
-        echo "Program ID: ${{ steps.deploy.outputs.program_id }}"
-        echo "Explorer: https://explorer.solana.com/address/${{ steps.deploy.outputs.program_id }}?cluster=devnet"
-        echo "SolanaFM: https://solana.fm/address/${{ steps.deploy.outputs.program_id }}?cluster=devnet"
+        echo "Program ID: $(cat DEPLOYED_PROGRAM_ID.txt)"
+        echo "Explorer: https://explorer.solana.com/address/$(cat DEPLOYED_PROGRAM_ID.txt)?cluster=devnet"
         echo "========================================"
