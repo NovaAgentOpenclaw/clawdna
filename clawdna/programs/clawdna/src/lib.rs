@@ -279,7 +279,7 @@ pub mod clawdna {
         
         let metadata_data = anchor_spl::metadata::mpl_token_metadata::types::DataV2 {
             name: full_name,
-            symbol: "CLAW".to_string(),
+            symbol: "CLAWDNA".to_string(),
             uri,
             seller_fee_basis_points: global_state.royalty_bps,
             creators: Some(creators),
@@ -395,7 +395,7 @@ pub mod clawdna {
         
         let metadata_data = anchor_spl::metadata::mpl_token_metadata::types::DataV2 {
             name: full_name,
-            symbol: "CLAW".to_string(),
+            symbol: "CLAWDNA".to_string(),
             uri,
             seller_fee_basis_points: global_state.royalty_bps,
             creators: Some(creators),
