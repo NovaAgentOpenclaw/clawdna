@@ -31,16 +31,15 @@ jobs:
           avm use 0.29.0
           
       - name: Setup Solana wallet
+        env:
+          SOLANA_KEYPAIR: ${{ secrets.SOLANA_KEYPAIR }}
         run: |
-          solana-keygen new --no-bip39-passphrase --silent --outfile ~/.config/solana/id.json
+          mkdir -p ~/.config/solana
+          echo "$SOLANA_KEYPAIR" > ~/.config/solana/id.json
           solana config set --url https://api.devnet.solana.com
-          
-      - name: Airdrop SOL
-        run: |
-          solana airdrop 2 || true
-          sleep 5
-          solana airdrop 2 || true
-          sleep 5
+          echo "Wallet address:"
+          solana address
+          echo "Balance:"
           solana balance
           
       - name: Build program
