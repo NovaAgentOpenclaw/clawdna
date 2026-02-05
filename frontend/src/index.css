@@ -1,0 +1,157 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  html {
+    @apply scroll-smooth;
+  }
+  
+  body {
+    @apply bg-bg-primary text-text-primary font-sans;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+  
+  ::selection {
+    @apply bg-neon-500/30 text-neon-100;
+  }
+}
+
+@layer components {
+  .glass-panel {
+    @apply bg-bg-secondary/80 backdrop-blur-xl border border-border rounded-2xl;
+  }
+  
+  .neon-glow {
+    @apply shadow-neon;
+  }
+  
+  .btn-primary {
+    @apply bg-neon-500 hover:bg-neon-400 text-bg-primary font-semibold 
+           px-6 py-3 rounded-xl transition-all duration-200
+           hover:shadow-neon active:scale-95;
+  }
+  
+  .btn-secondary {
+    @apply bg-bg-tertiary hover:bg-bg-hover text-text-primary font-medium 
+           px-6 py-3 rounded-xl transition-all duration-200
+           border border-border hover:border-border-hover;
+  }
+  
+  .input-field {
+    @apply bg-bg-tertiary border border-border rounded-lg px-4 py-2.5
+           text-text-primary placeholder:text-text-muted
+           focus:outline-none focus:border-neon-500/50 focus:ring-1 focus:ring-neon-500/30
+           transition-all duration-200;
+  }
+  
+  .stat-card {
+    @apply glass-panel p-6 hover:bg-bg-hover/50 transition-all duration-300;
+  }
+  
+  .chart-container {
+    @apply glass-panel p-6;
+  }
+  
+  .agent-card {
+    @apply glass-panel p-4 hover:border-neon-500/30 transition-all duration-200
+           cursor-pointer hover:shadow-neon-sm;
+  }
+  
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+  
+  .badge-neon {
+    @apply badge bg-neon-500/10 text-neon-400 border border-neon-500/20;
+  }
+  
+  .badge-purple {
+    @apply badge bg-accent-purple/10 text-accent-purple border border-accent-purple/20;
+  }
+  
+  .badge-cyan {
+    @apply badge bg-accent-cyan/10 text-accent-cyan border border-accent-cyan/20;
+  }
+  
+  .section-title {
+    @apply text-lg font-semibold text-text-primary flex items-center gap-2;
+  }
+  
+  .value-change {
+    @apply text-sm font-medium;
+  }
+  
+  .value-up {
+    @apply value-change text-neon-400;
+  }
+  
+  .value-down {
+    @apply value-change text-red-400;
+  }
+}
+
+@layer utilities {
+  .text-gradient {
+    @apply bg-gradient-to-r from-neon-400 to-neon-500 bg-clip-text text-transparent;
+  }
+  
+  .bg-gradient-radial {
+    background: radial-gradient(ellipse at center, var(--tw-gradient-from) 0%, var(--tw-gradient-to) 100%);
+  }
+  
+  .animate-in {
+    animation: slideUp 0.3s ease-out forwards;
+  }
+  
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: #3f3f46 #1a1a24;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: #1a1a24;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: #3f3f46;
+    border-radius: 3px;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: #52525b;
+  }
+}
+
+/* Chart.js custom styles */
+.chartjs-tooltip {
+  @apply bg-bg-secondary/95 backdrop-blur-xl border border-border rounded-xl p-3 shadow-glass;
+}
+
+/* Custom scrollbar for the whole app */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0a0a0f;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #27272a;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #3f3f46;
+}

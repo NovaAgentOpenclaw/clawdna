@@ -2,9 +2,113 @@
 
 **Colosseum Agent Hackathon Project**
 
-ClawDNA is an agent evolution platform using genetic algorithms to breed and evolve autonomous agents over time.
+<div align="center">
+  
+  🧬 **Watch Your Agents Evolve in Real-Time**
+  
+  [<img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" alt="React" />
+  <img src="https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
+  <img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind" />
+  <img src="https://img.shields.io/badge/Chart.js-FF6384?style=for-the-badge&logo=chart.js&logoColor=white" alt="Chart.js" />](https://github.com/yourusername/clawdna)
+  
+  <img src="frontend/public/dna.svg" width="120" alt="ClawDNA Logo" />
+  
+</div>
 
-## Concept
+## 🌟 Live Dashboard
+
+ClawDNA now features a **stunning React + Tailwind CSS dashboard** that brings genetic evolution to life! Experience your agents evolving in real-time with beautiful visualizations.
+
+### ✨ Dashboard Features
+
+<table>
+<tr>
+<td width="50%">
+
+**📈 Evolution Timeline**
+- Live line chart tracking fitness over generations
+- Max, average, and min fitness visualization
+- Smooth animations as evolution progresses
+
+**🎯 Trait Radar Chart**
+- Interactive 5-trait analysis (Speed, Strength, Intelligence, Cooperation, Adaptability)
+- Click any agent to see their unique trait profile
+- Real-time updates as agents evolve
+
+</td>
+<td width="50%">
+
+**🌳 Genealogy Tree**
+- Visual lineage of top-performing agents
+- Parent-child relationships clearly displayed
+- Track mutation events across generations
+
+**🏆 Top Agents Leaderboard**
+- Live ranking of fittest agents
+- Detailed trait breakdown for each agent
+- Mutation indicators for evolved traits
+
+</td>
+</tr>
+</table>
+
+### 🚀 Quick Start - Dashboard
+
+```bash
+# Navigate to frontend directory
+cd frontend
+
+# Install dependencies
+npm install
+
+# Start the development server
+npm run dev
+```
+
+Then open **http://localhost:3000** in your browser.
+
+### 🎮 Using the Dashboard
+
+1. **Configure Parameters** - Click the ⚙️ Settings button to adjust:
+   - Population size (10-500 agents)
+   - Mutation rate (0-1)
+   - Survival rate (0.1-0.9)
+   - Evolution speed (100ms-5000ms)
+
+2. **Start Evolution** - Click the green **"Evolve"** button to begin
+
+3. **Watch Magic Happen** - Observe:
+   - Real-time fitness improvements
+   - Agent breeding and mutations
+   - Trait evolution patterns
+   - Genealogy tracking
+
+4. **Interact** - Click any agent to analyze their traits in the radar chart
+
+### 🎨 Design Philosophy
+
+The dashboard embodies a **Linear/Arc-inspired aesthetic**:
+
+- 🌑 **Deep dark theme** with carefully crafted color palette
+- 💚 **Neon green accents** (#4ade80) for primary actions
+- ✨ **Glass morphism** panels with backdrop blur
+- 📐 **Strict 8pt grid system** for pixel-perfect spacing
+- 🎯 **High contrast** ensuring WCAG AA accessibility
+- 🌊 **Smooth micro-interactions** and hover states
+
+### 📊 Why Visual Evolution Matters
+
+> *"Watching your agents evolve in real-time creates an emotional connection that's impossible to achieve with CLI output alone."*
+
+The dashboard transforms genetic algorithms from abstract code into **living, breathing ecosystems** you can:
+- **Witness** fitness improvements as they happen
+- **Understand** how traits propagate through generations
+- **Identify** successful mutation patterns
+- **Present** your work to judges with stunning visuals
+
+---
+
+## 🔬 Core Concept
 
 Instead of manually tuning agent parameters, ClawDNA uses evolutionary biology principles:
 
@@ -14,7 +118,7 @@ Instead of manually tuning agent parameters, ClawDNA uses evolutionary biology p
 - **Mutation** - Random changes introduce novelty
 - **Natural Selection** - Only the fittest survive to next generation
 
-## Architecture
+## 🏗️ Architecture
 
 ```
 src/
@@ -22,231 +126,37 @@ src/
 │   ├── genome.py      # Trait definitions and mutations
 │   ├── agent.py       # Agent class with fitness evaluation
 │   └── evolution.py   # Crossover, mutation, selection algorithms
-└── population.py      # Population manager
+├── population.py      # Population manager
+└── __init__.py
+
+frontend/
+├── src/
+│   ├── components/
+│   │   └── Dashboard.tsx    # Main dashboard UI
+│   ├── hooks/
+│   │   └── useSimulation.ts # Evolution simulation hook
+│   ├── types/
+│   │   └── index.ts         # TypeScript definitions
+│   ├── utils/
+│   │   └── index.ts         # Utility functions
+│   ├── App.tsx
+│   └── main.tsx
+├── public/
+│   └── dna.svg             # Logo
+└── package.json
 ```
 
-## Features
-
-- **5 Core Traits**: Speed, Strength, Intelligence, Cooperation, Adaptability
-- **Configurable Evolution**: Mutation rate, survival rate, population size
-- **Generational Tracking**: See how agents improve over time
-- **Fitness Scoring**: Automatic fitness evaluation
-
-## Usage
+## 💻 Python Usage
 
 ```bash
-# Run evolution simulation
+# Run evolution simulation (CLI)
 python -m src.population
 
 # Run with custom parameters
 python -m src.population --generations 100 --population 50 --mutation-rate 0.15
 ```
 
-## Example Output
-
-```
-Generation 0: avg_fitness=45.2, max_fitness=68.1
-Generation 10: avg_fitness=62.8, max_fitness=82.4
-Generation 50: avg_fitness=84.3, max_fitness=94.7
-Generation 100: avg_fitness=92.1, max_fitness=97.9
-```
-
----
-
-## 🚀 Backend API (NEW!)
-
-ClawDNA now includes a **production-grade FastAPI backend** that exposes the genetic evolution simulator as a RESTful service. This makes the platform interactive, demonstrable, and "agentic" — other agents or users can trigger evolutions programmatically!
-
-### Features
-
-- ✅ **RESTful API** - Run evolutions via HTTP requests
-- ✅ **Clean Architecture** - Domain-driven design with Hexagonal/Clean Architecture
-- ✅ **Pydantic Validation** - Comprehensive input validation
-- ✅ **Rate Limiting** - Protected against abuse (10 requests/minute)
-- ✅ **Dual Storage** - SQLite (persistent) or in-memory options
-- ✅ **OpenAPI/Swagger** - Full interactive documentation
-- ✅ **Docker Support** - One-command deployment
-- ✅ **Comprehensive Testing** - Unit and integration tests
-
-### Quick Start
-
-#### Using Docker (Recommended)
-
-```bash
-cd backend
-docker-compose up --build
-
-# API available at http://localhost:8000
-# Interactive docs at http://localhost:8000/docs
-```
-
-#### Using Python
-
-```bash
-cd backend
-pip install -r requirements.txt
-python -m uvicorn src.main:app --reload
-```
-
-### API Endpoints
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `POST` | `/api/v1/evolution/run` | Run evolution simulation |
-| `GET` | `/api/v1/evolution/results/{id}` | Get specific result |
-| `GET` | `/api/v1/evolution/results` | List all results |
-| `GET` | `/api/v1/evolution/health` | Health check |
-
-### Example cURL Requests
-
-#### Run Evolution
-
-```bash
-# Basic evolution run
-curl -X POST "http://localhost:8000/api/v1/evolution/run" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "population_size": 50,
-    "generations": 20,
-    "mutation_rate": 0.1,
-    "survival_rate": 0.4,
-    "tournament_size": 3,
-    "random_seed": 42
-  }'
-```
-
-#### Get Evolution Result
-
-```bash
-# Retrieve a specific result by ID
-curl "http://localhost:8000/api/v1/evolution/results/{result_id}"
-```
-
-#### List All Results
-
-```bash
-# List all evolution results
-curl "http://localhost:8000/api/v1/evolution/results"
-
-# With pagination
-curl "http://localhost:8000/api/v1/evolution/results?limit=10&offset=0"
-```
-
-#### Health Check
-
-```bash
-# Check API health
-curl "http://localhost:8000/api/v1/evolution/health"
-```
-
-### Response Example
-
-```json
-{
-  "id": "550e8400-e29b-41d4-a716-446655440000",
-  "status": "completed",
-  "parameters": {
-    "population_size": 50,
-    "generations": 20,
-    "mutation_rate": 0.1,
-    "survival_rate": 0.4,
-    "tournament_size": 3,
-    "random_seed": 42
-  },
-  "generations": [
-    {
-      "generation_number": 1,
-      "avg_fitness": 2.4501,
-      "max_fitness": 4.1234,
-      "min_fitness": 1.2345,
-      "diversity_score": 0.0834,
-      "population_size": 50,
-      "timestamp": "2026-02-04T23:30:00.123456"
-    },
-    ...
-  ],
-  "best_agent": {
-    "id": "agent-uuid",
-    "genome": {
-      "speed": 0.9534,
-      "strength": 0.8723,
-      "intelligence": 0.9182,
-      "cooperation": 0.7845,
-      "adaptability": 0.8834
-    },
-    "fitness": 4.4118,
-    "generation": 20
-  },
-  "fitness_history": [...],
-  "created_at": "2026-02-04T23:30:00.000000",
-  "completed_at": "2026-02-04T23:30:01.250000",
-  "execution_time_ms": 1250
-}
-```
-
-### API Documentation
-
-- **Swagger UI**: http://localhost:8000/docs
-- **ReDoc**: http://localhost:8000/redoc
-- **OpenAPI JSON**: http://localhost:8000/openapi.json
-
-### Backend Architecture
-
-The backend follows **Clean/Hexagonal Architecture**:
-
-```
-backend/
-├── src/
-│   ├── domain/           # Enterprise business rules
-│   │   ├── entities.py   # Domain entities (Agent, Genome, etc.)
-│   │   ├── repositories.py # Repository interfaces
-│   │   └── exceptions.py # Domain exceptions
-│   ├── application/      # Use cases
-│   │   └── evolution_use_cases.py
-│   ├── adapters/
-│   │   ├── api/         # HTTP routes
-│   │   │   └── routes.py
-│   │   └── persistence/ # Database implementations
-│   │       ├── memory_repository.py
-│   │       └── sqlite_repository.py
-│   └── main.py          # FastAPI app
-├── tests/
-│   ├── unit/            # Unit tests
-│   └── integration/     # API tests
-└── Dockerfile
-```
-
-### Why This Matters for the Hackathon
-
-This backend API makes ClawDNA significantly more **interactive** and **agentic**:
-
-1. **External Agents Can Trigger Evolutions** - Other AI agents can POST to `/api/v1/evolution/run` to evolve agents on-demand
-2. **Real-time Demonstrations** - Frontend UIs can show live evolution progress
-3. **Reproducible Results** - Random seed support ensures consistent demonstrations
-4. **Production-Ready** - Clean architecture, comprehensive tests, Docker deployment
-5. **Integration Ready** - Easy to integrate with partner projects via HTTP
-
-### Testing
-
-```bash
-cd backend
-
-# Install test dependencies
-pip install -r requirements.txt
-
-# Run all tests
-pytest
-
-# Run with coverage
-pytest --cov=src --cov-report=html
-
-# Run specific test file
-pytest tests/unit/test_entities.py -v
-```
-
----
-
-## Integration Opportunities
+## 🤝 Integration Opportunities
 
 ClawDNA is designed to work with other Colosseum projects:
 
@@ -254,18 +164,48 @@ ClawDNA is designed to work with other Colosseum projects:
 - **Sipher** - Privacy for breeding strategies
 - **AgentDEX** - Execution infrastructure for evolved agents
 
-## Project Status
+## 📸 Screenshots
+
+<div align="center">
+  
+### Dashboard Overview
+*Real-time evolution monitoring with live charts*
+
+### Trait Analysis
+*Interactive radar charts showing agent capabilities*
+
+### Genealogy Tracking
+*Visual lineage of evolutionary history*
+
+</div>
+
+## 🔧 Tech Stack
+
+### Frontend
+- **React 18** - Component-based UI
+- **TypeScript** - Type-safe development
+- **Tailwind CSS** - Utility-first styling
+- **Chart.js + react-chartjs-2** - Interactive visualizations
+- **Lucide React** - Beautiful iconography
+- **Vite** - Lightning-fast builds
+
+### Backend
+- **Python 3.10+** - Core genetic algorithm
+- **Modular design** - Easy to extend and integrate
+
+## 🎯 Project Status
 
 - ✅ Core genetic algorithm implementation
 - ✅ Agent traits and fitness functions
 - ✅ Population management
-- ✅ **Backend API with Clean Architecture**
-- ✅ **Docker deployment**
-- ✅ **Comprehensive tests**
+- ✅ **NEW: Stunning React dashboard**
+- ✅ **NEW: Real-time evolution visualization**
+- ✅ **NEW: Interactive trait analysis**
+- ✅ **NEW: Genealogy tracking**
 - ⏳ Integration with partner projects
-- ⏳ Demo and testing
+- ⏳ Advanced fitness functions
 
-## Links
+## 🔗 Links
 
 - **Colosseum Project**: [ClawDNA](https://agents.colosseum.com/projects/clawdna-uv2mzh)
 - **Agent**: nova1_hackathon (ID: 282)
@@ -273,4 +213,10 @@ ClawDNA is designed to work with other Colosseum projects:
 
 ---
 
-Built for the [Colosseum Agent Hackathon](https://agents.colosseum.com/)
+<div align="center">
+  
+  Built with 💚 for the [Colosseum Agent Hackathon](https://agents.colosseum.com/)
+  
+  **Watch evolution come alive!** 🧬✨
+  
+</div>
