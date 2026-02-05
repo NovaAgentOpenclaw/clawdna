@@ -57,18 +57,24 @@ jobs:
         mkdir -p .cargo
         echo '[unstable]' > .cargo/config.toml
         echo 'next-lockfile-bump = true' >> .cargo/config.toml
-        anchor build
+        # Use cargo build-sbf directly (bypasses Anchor's internal cargo)
+        cargo build-sbf --manifest-path programs/clawdna/Cargo.toml
+        # Create target/deploy directory for deploy step
+        mkdir -p target/deploy
+        cp target/sbf-solana-solana/release/clawdna.so target/deploy/
 
     - name: Deploy to Devnet
       run: |
         cd clawdna
-        anchor deploy --provider.cluster devnet 2>&1 | tee deploy.log
+        # Deploy using Solana CLI directly
+        solana program deploy target/deploy/clawdna.so --url devnet 2>&1 | tee deploy.log
         cat deploy.log
 
     - name: Extract and Save Program ID
       run: |
         cd clawdna
-        PROGRAM_ID=$(grep -oP 'Program Id: \K[0-9A-Za-z]+' deploy.log || cat DEPLOYED_PROGRAM_ID.txt)
+        # Extract Program ID from Solana CLI output format
+        PROGRAM_ID=$(grep -oE '[1-9A-HJ-NP-Za-km-z]{32,44}' deploy.log | head -1 || cat DEPLOYED_PROGRAM_ID.txt)
         echo "$PROGRAM_ID" > DEPLOYED_PROGRAM_ID.txt
         echo "PROGRAM_ID=$PROGRAM_ID" >> $GITHUB_ENV
         echo "Deployed Program ID: $PROGRAM_ID"
