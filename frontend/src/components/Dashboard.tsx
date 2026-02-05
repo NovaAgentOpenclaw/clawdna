@@ -711,7 +711,7 @@ export default function Dashboard() {
             <p>🧬 ClawDNA - Colosseum AI Agent Hackathon 2026</p>
             <div className="flex items-center gap-4">
               <a 
-                href="https://agents.colosseum.com/projects/clawdna-uv2mzh" 
+                href="https://colosseum.com/agent-hackathon/projects/clawdna" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="hover:text-neon-400 transition-colors flex items-center gap-1"
