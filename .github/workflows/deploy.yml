@@ -31,7 +31,15 @@ jobs:
 
     - name: Install Solana CLI
       run: |
-        sh -c "$(curl -sSfL https://release.solana.com/v${SOLANA_VERSION}/install)"
+        # Retry logic for network issues
+        for i in 1 2 3; do
+          echo "Attempt $i to download Solana CLI..."
+          if sh -c "$(curl -sSfL https://release.solana.com/v${SOLANA_VERSION}/install)"; then
+            break
+          fi
+          sleep 10
+        done
+        
         echo "$HOME/.local/share/solana/install/active_release/bin" >> $GITHUB_PATH
         export PATH="$HOME/.local/share/solana/install/active_release/bin:$PATH"
         solana --version
@@ -48,10 +56,16 @@ jobs:
 
     - name: Setup deployer keypair
       run: |
+        # Check if secret is configured
+        if [ -z "${{ secrets.SOLANA_KEYPAIR }}" ]; then
+          echo "❌ ERROR: Secret SOLANA_KEYPAIR is not configured!"
+          echo "Please add the SOLANA_KEYPAIR secret in GitHub Settings > Secrets > Actions"
+          exit 1
+        fi
+        
         # Cria keypair temporária para deploy
         mkdir -p ~/.config/solana
-        # Keypair do projeto (substituir por secret em produção)
-        echo "${{ secrets.SOLANA_KEYPAIR }}" > ~/.config/solana/id.json
+        echo '${{ secrets.SOLANA_KEYPAIR }}' > ~/.config/solana/id.json
         chmod 600 ~/.config/solana/id.json
         
         # Mostrar endereço
