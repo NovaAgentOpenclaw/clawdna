@@ -1,0 +1,8 @@
+{
+  "name": "clawguild",
+  "buildCommand": "npm run build",
+  "framework": "nextjs",
+  "outputDirectory": ".next",
+  "installCommand": "npm install --save-dev",
+  "devCommand": "npm run dev"
+}

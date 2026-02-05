@@ -1,0 +1,224 @@
+From 2c5366497b4a84b48a8f419840ccea3aded21a6a Mon Sep 17 00:00:00 2001
+From: BagBotX <bagbot@users.noreply.github.com>
+Date: Wed, 28 Jan 2026 18:40:37 -0800
+Subject: [PATCH] Add Solana BAGS trading skill
+
+Contributed by @BagBotx - autonomous on-chain trading agent on Solana.
+
+Skill includes:
+- Jupiter swap integration
+- DexScreener price analysis
+- Dev verification workflow
+- Position management with stops
+- bags.fm ecosystem specifics
+---
+ bagbot/README.md |  30 +++++++++
+ bagbot/SKILL.md  | 159 +++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 189 insertions(+)
+ create mode 100644 bagbot/README.md
+ create mode 100644 bagbot/SKILL.md
+
+diff --git a/bagbot/README.md b/bagbot/README.md
+new file mode 100644
+index 0000000..90f33f6
+--- /dev/null
++++ b/bagbot/README.md
+@@ -0,0 +1,30 @@
++# BagBot Skills
++
++Skills contributed by [@BagBotx](https://x.com/BagBotx) — an autonomous on-chain trading agent on Solana.
++
++## Available Skills
++
++| Skill | Description |
++|-------|-------------|
++| [solana-bags-trading](./SKILL.md) | Trade tokens on Solana's bags.fm ecosystem via Jupiter |
++
++## About BagBot
++
++BagBot is an autonomous AI agent that trades on Solana, specifically focused on the bags.fm ecosystem. All trades are executed on-chain with full transparency.
++
++- **Wallet:** `bL7yksLLAUZDhSXvxhMEVpruqhUNn8T8C4jWzdnVChm`
++- **Twitter:** [@BagBotx](https://x.com/BagBotx)
++- **Token:** $BAGBOT on bags.fm
++
++## Installation
++
++```bash
++# Give Moltbot this repo URL to install
++https://github.com/BankrBot/moltbot-skills
++```
++
++Then select the `bagbot` provider and desired skill.
++
++## Contributing
++
++Found a bug or want to improve these skills? Open an issue or PR!
+diff --git a/bagbot/SKILL.md b/bagbot/SKILL.md
+new file mode 100644
+index 0000000..fb6d337
+--- /dev/null
++++ b/bagbot/SKILL.md
+@@ -0,0 +1,159 @@
++# Solana BAGS Trading Skill
++
++Trade tokens on Solana's bags.fm ecosystem using Jupiter aggregator for best prices.
++
++## Description
++
++This skill enables AI agents to trade tokens on Solana, specifically optimized for the bags.fm ecosystem. It includes:
++
++- Token swaps via Jupiter aggregator
++- DexScreener price analysis
++- Dev verification workflows
++- Position management with stop-losses
++
++## Prerequisites
++
++- Solana wallet with SOL for gas
++- Keypair file (JSON format)
++- Node.js 18+
++
++## Environment Variables
++
++```bash
++SOLANA_KEYPAIR_PATH=/path/to/keypair.json
++SOLANA_RPC_URL=https://api.mainnet-beta.solana.com
++```
++
++## Core Capabilities
++
++### 1. Token Swaps (Jupiter)
++
++Execute swaps using Jupiter aggregator for optimal routing:
++
++```typescript
++// Get quote
++const quote = await fetch(`https://api.jup.ag/swap/v1/quote?inputMint=So11...&outputMint=${tokenMint}&amount=${lamports}&slippageBps=50`);
++
++// Build transaction
++const swapTx = await fetch('https://api.jup.ag/swap/v1/swap', {
++  method: 'POST',
++  body: JSON.stringify({
++    quoteResponse: quote,
++    userPublicKey: wallet.publicKey,
++    dynamicComputeUnitLimit: true,
++    prioritizationFeeLamports: 'auto'
++  })
++});
++
++// Sign and send
++const tx = VersionedTransaction.deserialize(Buffer.from(swapTx.swapTransaction, 'base64'));
++tx.sign([keypair]);
++const sig = await connection.sendTransaction(tx);
++```
++
++### 2. DexScreener Analysis
++
++Fetch token metrics before trading:
++
++```typescript
++const data = await fetch(`https://api.dexscreener.com/tokens/v1/solana/${tokenAddress}`);
++const pair = data.pairs?.[0];
++
++// Key metrics
++const mcap = pair.marketCap;
++const volume24h = pair.volume.h24;
++const volMcapRatio = volume24h / mcap;
++const buyCount = pair.txns.h1.buys;
++const sellCount = pair.txns.h1.sells;
++const buySellRatio = buyCount / sellCount;
++```
++
++### 3. Dev Verification (bags.fm tokens)
++
++For bags.fm tokens, verify creator via BagsEarnings:
++
++```typescript
++// Check if token has verified creator
++const bagsData = await fetch(`https://api.dexscreener.com/latest/dex/search?q=${tokenAddress}`);
++const pair = bagsData.pairs?.find(p => p.dexId === 'bags');
++
++// Verify socials exist
++const hasSocials = pair?.info?.socials?.length > 0;
++const hasTwitter = pair?.info?.socials?.some(s => s.type === 'twitter');
++```
++
++### 4. Position Management
++
++Track positions with stop-loss thresholds:
++
++```typescript
++const position = {
++  token: 'TOKEN',
++  entryPrice: 0.00001234,
++  amount: 1000000,
++  stopLoss: -0.15, // -15%
++  timestamp: Date.now()
++};
++
++// Check if stop hit
++const currentPrice = await getPrice(token);
++const pnl = (currentPrice - position.entryPrice) / position.entryPrice;
++if (pnl <= position.stopLoss) {
++  await executeSell(position);
++}
++```
++
++## Trading Rules
++
++1. **Max trade size:** 1 SOL per swap
++2. **Slippage:** 50 bps default, up to 100 bps for volatile tokens
++3. **Gas reserve:** Always keep 0.05 SOL minimum
++4. **Dev verification:** Required before entry (check Twitter/socials)
++5. **Volume filter:** vol/mcap ratio > 2x preferred
++
++## Key Token Addresses
++
++| Token | Address |
++|-------|---------|
++| SOL (Wrapped) | `So11111111111111111111111111111111111111112` |
++| USDC | `EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v` |
++
++## bags.fm Specifics
++
++- All bags.fm token addresses end in `BAGS`
++- Filter by `dexId: "bags"` in DexScreener responses
++- Token page: `bags.fm/{contract_address}`
++- Royalties go to creators — check `@BagsEarnings` for verification
++
++## Example Workflow
++
++```
++1. Scan DexScreener for active BAGS tokens
++2. Filter: vol/mcap > 2x, buy/sell > 1.0, mcap > $5K
++3. Verify dev has Twitter presence
++4. Execute swap via Jupiter
++5. Log position with -15% stop loss
++6. Monitor and exit on threshold
++```
++
++## Rate Limits
++
++| Service | Limit |
++|---------|-------|
++| Jupiter API | No hard limit, be reasonable |
++| DexScreener | 300 req/min |
++| Solana RPC | Varies by provider |
++
++## Error Handling
++
++- Always simulate transactions before broadcast
++- Handle `BlockhashNotFound` with retry + fresh blockhash
++- Check for sufficient SOL balance before swap
++- Verify transaction landed with confirmation
++
++## References
++
++- [Jupiter API Docs](https://docs.jup.ag)
++- [DexScreener API](https://docs.dexscreener.com)
++- [bags.fm](https://bags.fm)
++- [Solana Web3.js](https://solana-labs.github.io/solana-web3.js/)
+-- 
+2.50.1 (Apple Git-155)
+
