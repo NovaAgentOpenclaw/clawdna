@@ -1,0 +1,137 @@
+name: Deploy ClawDNA to Solana Devnet
+
+on:
+  push:
+    branches: [ main, master, develop ]
+    paths:
+      - 'programs/**'
+      - '.github/workflows/deploy.yml'
+  workflow_dispatch:  # Permite rodar manualmente
+
+env:
+  SOLANA_VERSION: 1.18.0
+  ANCHOR_VERSION: 0.29.0
+  NODE_VERSION: 20
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+
+    - name: Setup Rust
+      uses: dtolnay/rust-action@stable
+
+    - name: Install Solana CLI
+      run: |
+        sh -c "$(curl -sSfL https://release.solana.com/v${SOLANA_VERSION}/install)"
+        echo "$HOME/.local/share/solana/install/active_release/bin" >> $GITHUB_PATH
+        export PATH="$HOME/.local/share/solana/install/active_release/bin:$PATH"
+        solana --version
+
+    - name: Install Anchor CLI
+      run: |
+        npm install -g @coral-xyz/anchor-cli@${ANCHOR_VERSION}
+        anchor --version
+
+    - name: Configure Solana
+      run: |
+        solana config set --url devnet
+        solana config get
+
+    - name: Setup deployer keypair
+      run: |
+        # Cria keypair temporária para deploy
+        mkdir -p ~/.config/solana
+        # Keypair do projeto (substituir por secret em produção)
+        echo "${{ secrets.SOLANA_KEYPAIR }}" > ~/.config/solana/id.json
+        chmod 600 ~/.config/solana/id.json
+        
+        # Mostrar endereço
+        solana address
+
+    - name: Request Airdrop (if needed)
+      run: |
+        BALANCE=$(solana balance | awk '{print $1}')
+        echo "Current balance: $BALANCE SOL"
+        
+        if (( $(echo "$BALANCE < 2.0" | bc -l) )); then
+          echo "Requesting airdrop..."
+          solana airdrop 2
+          sleep 5
+          solana balance
+        fi
+
+    - name: Install dependencies
+      run: |
+        cd clawdna
+        npm install
+        cargo fetch
+
+    - name: Build program
+      run: |
+        cd clawdna
+        anchor build
+
+    - name: Deploy to Devnet
+      id: deploy
+      run: |
+        cd clawdna
+        
+        # Deploy com output capturado
+        DEPLOY_OUTPUT=$(anchor deploy --provider.cluster devnet 2>&1)
+        echo "$DEPLOY_OUTPUT"
+        
+        # Extrair Program ID
+        PROGRAM_ID=$(echo "$DEPLOY_OUTPUT" | grep -oP 'Program Id: \K[\w]+')
+        echo "program_id=$PROGRAM_ID" >> $GITHUB_OUTPUT
+        
+        # Salvar no arquivo
+        echo "$PROGRAM_ID" > DEPLOYED_PROGRAM_ID.txt
+        
+        # Atualizar lib.rs com o novo Program ID
+        sed -i "s/declare_id!(\"[^\"]*\")/declare_id!(\"$PROGRAM_ID\")/" programs/clawdna/src/lib.rs
+
+    - name: Generate IDL
+      run: |
+        cd clawdna
+        anchor idl init --filepath target/idl/clawdna.json ${{ steps.deploy.outputs.program_id }} || true
+        anchor idl upgrade --filepath target/idl/clawdna.json ${{ steps.deploy.outputs.program_id }} || true
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: deploy-artifacts
+        path: |
+          clawdna/target/deploy/clawdna.so
+          clawdna/target/idl/clawdna.json
+          clawdna/target/types/clawdna.ts
+          clawdna/DEPLOYED_PROGRAM_ID.txt
+
+    - name: Commit Program ID
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        
+        git add clawdna/DEPLOYED_PROGRAM_ID.txt
+        git add clawdna/programs/clawdna/src/lib.rs || true
+        
+        git diff --cached --quiet || git commit -m "chore: update deployed program ID [skip ci]"
+        git push
+
+    - name: Show deployment info
+      run: |
+        echo "========================================"
+        echo "🎉 Deploy concluído!"
+        echo "========================================"
+        echo "Program ID: ${{ steps.deploy.outputs.program_id }}"
+        echo "Explorer: https://explorer.solana.com/address/${{ steps.deploy.outputs.program_id }}?cluster=devnet"
+        echo "SolanaFM: https://solana.fm/address/${{ steps.deploy.outputs.program_id }}?cluster=devnet"
+        echo "========================================"
