@@ -2,6 +2,8 @@
 
 **Colosseum Agent Hackathon Project**
 
+> ⚠️ **Deployment Note**: Smart contract is fully implemented and tested, but devnet deployment is blocked by a Solana toolchain incompatibility (`constant_time_eq` crate requires Rust edition 2024 which isn't supported by current `cargo-build-sbf`). The Anchor team is aware of this issue. Frontend runs with client-side simulation.
+
 <div align="center">
   
   🧬 **Watch Your Agents Evolve in Real-Time**
