@@ -61,11 +61,13 @@ jobs:
 
     - name: Build program
       run: |
+        cd clawdna
         cargo fetch
         anchor build
 
     - name: Generate IDL
       run: |
+        cd clawdna
         anchor idl build -o target/idl/clawdna.json || true
 
     - name: Upload artifacts
@@ -73,9 +75,9 @@ jobs:
       with:
         name: build-artifacts
         path: |
-          target/deploy/clawdna.so
-          target/idl/clawdna.json
-          target/types/clawdna.ts
+          clawdna/target/deploy/clawdna.so
+          clawdna/target/idl/clawdna.json
+          clawdna/target/types/clawdna.ts
           clawdna/DEPLOYED_PROGRAM_ID.txt
 
     - name: Show verification info
