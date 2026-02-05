@@ -24,7 +24,7 @@ const calculateFitness = (traits: AgentTraits): number => {
 
 // Create initial population
 const createPopulation = (size: number): Agent[] => {
-  return Array.from({ length: size }, (_, i) => {
+  return Array.from({ length: size }, () => {
     const traits = generateRandomTraits()
     return {
       id: `A-${generateId()}`,

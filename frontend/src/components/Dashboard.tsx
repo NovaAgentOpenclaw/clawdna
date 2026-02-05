@@ -297,7 +297,6 @@ export default function Dashboard() {
       x: {
         grid: {
           color: '#27272a',
-          drawBorder: false,
         },
         ticks: {
           color: '#71717a',
@@ -309,7 +308,6 @@ export default function Dashboard() {
         max: 5,
         grid: {
           color: '#27272a',
-          drawBorder: false,
         },
         ticks: {
           color: '#71717a',
