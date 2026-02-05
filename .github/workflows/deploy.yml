@@ -22,8 +22,10 @@ jobs:
       with:
         node-version: 20
 
-    - name: Setup Rust (nightly for edition2024)
-      uses: dtolnay/rust-toolchain@nightly
+    - name: Setup Rust
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        toolchain: 1.85.0
 
     - name: Install Solana CLI
       run: |
@@ -53,7 +55,6 @@ jobs:
       run: |
         cd clawdna
         rm -f Cargo.lock
-        cargo fetch
         anchor build
 
     - name: Deploy to Devnet
