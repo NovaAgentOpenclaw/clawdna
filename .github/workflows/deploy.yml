@@ -31,17 +31,10 @@ jobs:
 
     - name: Install Solana CLI
       run: |
-        # Retry logic for network issues
-        for i in 1 2 3; do
-          echo "Attempt $i to download Solana CLI..."
-          if sh -c "$(curl -sSfL https://release.solana.com/v${SOLANA_VERSION}/install)"; then
-            break
-          fi
-          sleep 10
-        done
-        
-        echo "$HOME/.local/share/solana/install/active_release/bin" >> $GITHUB_PATH
-        export PATH="$HOME/.local/share/solana/install/active_release/bin:$PATH"
+        # Install Solana CLI from GitHub releases (more reliable)
+        curl -L -o solana.tar.bz2 "https://github.com/solana-labs/solana/releases/download/v${SOLANA_VERSION}/solana-release-x86_64-unknown-linux-gnu.tar.bz2"
+        tar -xjf solana.tar.bz2
+        mv solana-release/bin/* /usr/local/bin/
         solana --version
 
     - name: Install Anchor CLI
