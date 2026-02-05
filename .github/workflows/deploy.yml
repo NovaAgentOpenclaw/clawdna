@@ -52,6 +52,7 @@ jobs:
     - name: Build program
       run: |
         cd clawdna
+        rm -f Cargo.lock
         cargo fetch
         anchor build
 
