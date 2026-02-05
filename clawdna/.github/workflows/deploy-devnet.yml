@@ -1,0 +1,70 @@
+name: Deploy to Solana Devnet
+
+on:
+  workflow_dispatch:  # Manual trigger
+  push:
+    branches: [main]
+    paths:
+      - 'programs/**'
+      - 'Anchor.toml'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          
+      - name: Install Solana
+        run: |
+          sh -c "$(curl -sSfL https://release.solana.com/v1.18.0/install)"
+          echo "$HOME/.local/share/solana/install/active_release/bin" >> $GITHUB_PATH
+          
+      - name: Install Anchor
+        run: |
+          cargo install --git https://github.com/coral-xyz/anchor avm --locked --force
+          avm install 0.29.0
+          avm use 0.29.0
+          
+      - name: Setup Solana wallet
+        run: |
+          solana-keygen new --no-bip39-passphrase --silent --outfile ~/.config/solana/id.json
+          solana config set --url https://api.devnet.solana.com
+          
+      - name: Airdrop SOL
+        run: |
+          solana airdrop 2 || true
+          sleep 5
+          solana airdrop 2 || true
+          sleep 5
+          solana balance
+          
+      - name: Build program
+        run: |
+          cd clawdna
+          anchor build
+          
+      - name: Deploy to devnet
+        run: |
+          cd clawdna
+          anchor deploy --provider.cluster devnet 2>&1 | tee deploy.log
+          
+      - name: Extract Program ID
+        run: |
+          cd clawdna
+          PROGRAM_ID=$(grep -oP 'Program Id: \K[0-9A-Za-z]+' deploy.log || echo "")
+          echo "PROGRAM_ID=$PROGRAM_ID" >> $GITHUB_ENV
+          echo "$PROGRAM_ID" > ../DEPLOYED_PROGRAM_ID.txt
+          echo "✅ Program deployed: $PROGRAM_ID"
+          
+      - name: Commit Program ID
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add DEPLOYED_PROGRAM_ID.txt || true
+          git diff --staged --quiet || git commit -m "chore: update deployed program ID [skip ci]"
+          git push || true
