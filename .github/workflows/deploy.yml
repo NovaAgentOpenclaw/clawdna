@@ -22,10 +22,8 @@ jobs:
       with:
         node-version: 20
 
-    - name: Setup Rust
-      uses: dtolnay/rust-toolchain@stable
-      with:
-        toolchain: 1.77.0
+    - name: Setup Rust (nightly for edition2024)
+      uses: dtolnay/rust-toolchain@nightly
 
     - name: Install Solana CLI
       run: |
@@ -55,6 +53,10 @@ jobs:
       run: |
         cd clawdna
         rm -f Cargo.lock
+        # Create cargo config to accept lockfile v4 with nightly
+        mkdir -p .cargo
+        echo '[unstable]' > .cargo/config.toml
+        echo 'next-lockfile-bump = true' >> .cargo/config.toml
         anchor build
 
     - name: Deploy to Devnet
