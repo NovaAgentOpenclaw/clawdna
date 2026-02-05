@@ -6,8 +6,9 @@ on:
   workflow_dispatch:
 
 env:
-  SOLANA_VERSION: 1.18.26
-  ANCHOR_VERSION: 0.28.0
+  # Use Agave 3.x from Anza (supports edition2024)
+  AGAVE_VERSION: 3.1.8
+  ANCHOR_VERSION: 0.30.1
 
 jobs:
   deploy:
@@ -27,11 +28,12 @@ jobs:
       with:
         toolchain: 1.79.0
 
-    - name: Install Solana CLI
+    - name: Install Agave CLI (Solana 3.x)
       run: |
-        curl -L -o solana.tar.bz2 "https://github.com/solana-labs/solana/releases/download/v${SOLANA_VERSION}/solana-release-x86_64-unknown-linux-gnu.tar.bz2"
-        tar -xjf solana.tar.bz2
-        mv solana-release/bin/* /usr/local/bin/
+        # Download Agave from Anza (supports edition2024)
+        curl -L -o agave.tar.bz2 "https://github.com/anza-xyz/agave/releases/download/v${AGAVE_VERSION}/solana-release-x86_64-unknown-linux-gnu.tar.bz2"
+        tar -xjf agave.tar.bz2
+        sudo mv solana-release/bin/* /usr/local/bin/
         solana --version
 
     - name: Install Anchor CLI
