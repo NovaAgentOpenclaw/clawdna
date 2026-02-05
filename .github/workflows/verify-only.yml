@@ -24,6 +24,8 @@ jobs:
     - name: Configure Solana
       run: |
         solana config set --url devnet
+        mkdir -p ~/.config/solana
+        solana-keygen new --no-passphrase --force -o ~/.config/solana/id.json
         solana config get
 
     - name: Verify deployed program
