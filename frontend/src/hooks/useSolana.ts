@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { PublicKey } from '@solana/web3.js';
 
-// Program ID do ClawDNA (será atualizado após deploy)
-const _PROGRAM_ID = new PublicKey('Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS');
+// Program ID do ClawDNA (deployed na devnet)
+const PROGRAM_ID = new PublicKey('5DehMSqmCmRnxMPUeh16ZGyAMqzVZP23LqwMPXCsW4kY');
 
 export function useSolana() {
   const [isLoading, setIsLoading] = useState(false);
@@ -10,13 +10,11 @@ export function useSolana() {
   const [programId, setProgramId] = useState<PublicKey | null>(null);
 
   useEffect(() => {
-    // Conectar à devnet
-    // const conn = new Connection(clusterApiUrl('devnet'), 'confirmed');
-    setProgramId(_PROGRAM_ID);
+    setProgramId(PROGRAM_ID);
   }, []);
 
   const initializeProgram = async (_wallet: any) => {
-    console.log('Program initialized (devnet)', _PROGRAM_ID.toString());
+    console.log('Program initialized (devnet)', PROGRAM_ID.toString());
     return true;
   };
 
