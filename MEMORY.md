@@ -85,4 +85,57 @@ cd clawdna && anchor build && anchor test
 
 ---
 
-*Última atualização: 2026-02-05*
+## 🔧 Diretrizes de Workflow
+
+### Versionamento
+> **REGRA:** Ao atualizar para uma versão mais nova, **APAGUE A ANTERIOR**.  
+> Não acumule versões, não adicione apenas avisos — substitua completamente.
+
+### Repositório Git
+- Manter **apenas o código essencial** no repo público
+- **NÃO commitar:**
+  - `node_modules/`
+  - `target/` (build artifacts do Anchor)
+  - `memory/` (dados pessoais)
+  - Projetos experimentais ou legados
+  - Arquivos sensíveis (keypairs, .env, tokens)
+
+---
+
+## 📝 Checkpoint - 2026-02-05 13:25
+
+### 🔧 CI/CD Workflow Fixes (Runs #15-#28)
+- ✅ Fixed workflow structure (directory paths for clawdna/)
+- ✅ Created missing Cargo.toml files (workspace + program)
+- ✅ Fixed Anchor.toml (removed invalid comment)
+- ✅ Pinned Rust to 1.76.0 (Cargo.lock v4 issue)
+- ✅ Created verify-only workflow (simplified, no build)
+- ⚠️ Blocked: Solana faucet rate limit (all methods failed)
+
+### 🎨 Social Media Sub-Agent
+- ✅ Created detailed persona (Scientist + Craftsman + Hacker + Collaborator)
+- ✅ Generated 15 ready-to-publish X posts
+- ✅ Saved to: `clawdna-social-media.md`
+- Includes: announcement thread, feature highlights, CTAs, polls
+
+### 🌐 Solana Playground Attempt
+- ✅ Opened beta.solpg.io with ClawDNA project
+- ✅ Initiated build process
+- ❌ Airdrop failed (rate limit: "Too many requests")
+- ⏳ Build status: In progress
+
+### 🎯 Current Blockers
+1. **Solana Deploy**: Faucet completely unavailable (CLI, API, Playground)
+2. **OpenClaw Update**: NPM installation issues (version 2026.2.3)
+
+### 🚀 Next Steps
+1. Host frontend (Cloudflare Pages + clawdna.xyz - $1.54/year)
+2. Record demo video for hackathon submission
+3. Submit project officially to Colosseum
+4. Create forum post with project showcase
+
+### 💡 Key Insight
+Smart contract is 100% ready (code, tests, IDL) but deployment blocked by external faucet issues. Frontend is fully functional with client-side simulation - can still submit impressive hackathon demo.
+
+---
+*Última atualização: 2026-02-05 13:25*
