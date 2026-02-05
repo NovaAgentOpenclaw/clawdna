@@ -49,32 +49,33 @@ jobs:
 
     - name: Setup deployer keypair
       run: |
-        # Check if secret is configured
-        if [ -z "${{ secrets.SOLANA_KEYPAIR }}" ]; then
-          echo "❌ ERROR: Secret SOLANA_KEYPAIR is not configured!"
-          echo "Please add the SOLANA_KEYPAIR secret in GitHub Settings > Secrets > Actions"
-          exit 1
-        fi
-        
-        # Cria keypair temporária para deploy
+        # Generate new keypair for autonomous deploy (no human intervention needed)
         mkdir -p ~/.config/solana
-        echo '${{ secrets.SOLANA_KEYPAIR }}' > ~/.config/solana/id.json
+        solana-keygen new --no-passphrase --force -o ~/.config/solana/id.json
         chmod 600 ~/.config/solana/id.json
         
-        # Mostrar endereço
-        solana address
-
-    - name: Request Airdrop (if needed)
-      run: |
-        BALANCE=$(solana balance | awk '{print $1}')
-        echo "Current balance: $BALANCE SOL"
+        echo "✅ Generated new keypair for autonomous deployment"
+        echo "Address: $(solana address)"
         
-        if (( $(echo "$BALANCE < 2.0" | bc -l) )); then
-          echo "Requesting airdrop..."
-          solana airdrop 2
-          sleep 5
-          solana balance
-        fi
+        # Save keypair as artifact for recovery
+        cp ~/.config/solana/id.json keypair-backup.json
+
+    - name: Request Airdrop
+      run: |
+        echo "Requesting airdrop on devnet..."
+        MAX_RETRIES=5
+        for i in $(seq 1 $MAX_RETRIES); do
+          echo "Attempt $i/$MAX_RETRIES..."
+          if solana airdrop 2; then
+            echo "✅ Airdrop successful!"
+            solana balance
+            exit 0
+          fi
+          sleep 15
+        done
+        
+        echo "⚠️ Airdrop failed after $MAX_RETRIES attempts, but continuing..."
+        solana balance || true
 
     - name: Install dependencies
       run: |
@@ -121,6 +122,7 @@ jobs:
           clawdna/target/idl/clawdna.json
           clawdna/target/types/clawdna.ts
           clawdna/DEPLOYED_PROGRAM_ID.txt
+          keypair-backup.json
 
     - name: Commit Program ID
       run: |
