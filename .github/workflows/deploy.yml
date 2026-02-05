@@ -1,4 +1,4 @@
-name: Verify ClawDNA on Solana Devnet
+name: Deploy ClawDNA to Solana Devnet
 
 on:
   push:
@@ -10,7 +10,7 @@ env:
   ANCHOR_VERSION: 0.29.0
 
 jobs:
-  verify:
+  deploy:
     runs-on: ubuntu-latest
     
     steps:
@@ -22,8 +22,8 @@ jobs:
       with:
         node-version: 20
 
-    - name: Setup Rust
-      uses: dtolnay/rust-toolchain@1.76.0
+    - name: Setup Rust (nightly for edition2024)
+      uses: dtolnay/rust-toolchain@nightly
 
     - name: Install Solana CLI
       run: |
@@ -37,27 +37,17 @@ jobs:
         npm install -g @coral-xyz/anchor-cli@${ANCHOR_VERSION}
         anchor --version
 
-    - name: Configure Solana
+    - name: Setup Solana Wallet
+      env:
+        SOLANA_KEYPAIR: ${{ secrets.SOLANA_KEYPAIR }}
       run: |
+        mkdir -p ~/.config/solana
+        echo "$SOLANA_KEYPAIR" > ~/.config/solana/id.json
         solana config set --url devnet
-        solana config get
-
-    - name: Debug directory structure
-      run: |
-        echo "=== Current directory ==="
-        pwd
-        echo "=== Files in current dir ==="
-        ls -la
-        echo "=== Looking for Anchor.toml ==="
-        find . -name "Anchor.toml" -type f
-        echo "=== Looking for Cargo.toml ==="
-        find . -name "Cargo.toml" -type f
-
-    - name: Verify deployed program
-      run: |
-        PROGRAM_ID=$(cat clawdna/DEPLOYED_PROGRAM_ID.txt)
-        echo "Checking program: $PROGRAM_ID"
-        solana program show "$PROGRAM_ID" || echo "⚠️ Program may not be deployed yet"
+        echo "Wallet address:"
+        solana address
+        echo "Balance:"
+        solana balance
 
     - name: Build program
       run: |
@@ -65,26 +55,34 @@ jobs:
         cargo fetch
         anchor build
 
-    - name: Generate IDL
+    - name: Deploy to Devnet
       run: |
         cd clawdna
-        anchor idl build -o target/idl/clawdna.json || true
+        anchor deploy --provider.cluster devnet 2>&1 | tee deploy.log
+        cat deploy.log
+
+    - name: Extract and Save Program ID
+      run: |
+        cd clawdna
+        PROGRAM_ID=$(grep -oP 'Program Id: \K[0-9A-Za-z]+' deploy.log || cat DEPLOYED_PROGRAM_ID.txt)
+        echo "$PROGRAM_ID" > DEPLOYED_PROGRAM_ID.txt
+        echo "PROGRAM_ID=$PROGRAM_ID" >> $GITHUB_ENV
+        echo "Deployed Program ID: $PROGRAM_ID"
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: build-artifacts
+        name: deploy-artifacts
         path: |
           clawdna/target/deploy/clawdna.so
           clawdna/target/idl/clawdna.json
-          clawdna/target/types/clawdna.ts
           clawdna/DEPLOYED_PROGRAM_ID.txt
 
-    - name: Show verification info
+    - name: Show deploy info
       run: |
         echo "========================================"
-        echo "✅ ClawDNA Verification Complete!"
+        echo "✅ Deploy ClawDNA Complete!"
         echo "========================================"
-        echo "Program ID: $(cat clawdna/DEPLOYED_PROGRAM_ID.txt)"
-        echo "Explorer: https://explorer.solana.com/address/$(cat clawdna/DEPLOYED_PROGRAM_ID.txt)?cluster=devnet"
+        echo "Program ID: $PROGRAM_ID"
+        echo "Explorer: https://explorer.solana.com/address/$PROGRAM_ID?cluster=devnet"
         echo "========================================"
