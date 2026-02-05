@@ -24,9 +24,9 @@ jobs:
         node-version: 20
 
     - name: Setup Rust
-      uses: dtolnay/rust-toolchain@stable
+      uses: dtolnay/rust-toolchain@nightly
       with:
-        toolchain: 1.79.0
+        toolchain: nightly
 
     - name: Install Agave CLI (Solana 3.x)
       run: |
@@ -54,9 +54,15 @@ jobs:
         solana balance
 
     - name: Build program
+      env:
+        CARGO_UNSTABLE_NEXT_LOCKFILE_BUMP: true
       run: |
         cd clawdna
         rm -f Cargo.lock
+        # Create cargo config to handle lockfile v4
+        mkdir -p .cargo
+        echo '[unstable]' > .cargo/config.toml
+        echo 'next-lockfile-bump = true' >> .cargo/config.toml
         anchor build
 
     - name: Deploy to Devnet
