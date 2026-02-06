@@ -1,8 +1,3 @@
-export default function() {
-  return {
-    plugins: {
-      tailwindcss: {},
-      autoprefixer: {},
-    },
-  }
-}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

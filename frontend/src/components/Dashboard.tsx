@@ -38,7 +38,7 @@ import {
 } from 'lucide-react'
 import { useSimulation } from '../hooks/useSimulation'
 import { DEFAULT_CONFIG, type Agent, type SimulationConfig } from '../types'
-import { formatNumber, formatPercent, cn } from '../utils'
+import { formatNumber, formatPercent, cn } from '../lib/utils'
 
 // Register Chart.js components
 ChartJS.register(

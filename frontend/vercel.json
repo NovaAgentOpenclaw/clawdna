@@ -1,0 +1,74 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "version": 2,
+  "name": "clawdna-dashboard",
+  "buildCommand": "vite build",
+  "outputDirectory": "dist",
+  "framework": "vite",
+  "rewrites": [
+    {
+      "source": "/api/health",
+      "destination": "/api/health.ts"
+    },
+    {
+      "source": "/api/population/init",
+      "destination": "/api/population/init.ts"
+    },
+    {
+      "source": "/api/evolve",
+      "destination": "/api/evolve.ts"
+    },
+    {
+      "source": "/api/agents",
+      "destination": "/api/agents.ts"
+    },
+    {
+      "source": "/api/breed",
+      "destination": "/api/breed.ts"
+    },
+    {
+      "source": "/api/leaderboard",
+      "destination": "/api/leaderboard.ts"
+    },
+    {
+      "source": "/api/session",
+      "destination": "/api/session.ts"
+    },
+    {
+      "source": "/api/wallet/:action*",
+      "destination": "/api/wallet.ts"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET, POST, PUT, DELETE, OPTIONS"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "Content-Type, Authorization, X-Session-ID"
+        }
+      ]
+    }
+  ],
+  "env": {
+    "KV_REST_API_URL": "@kv_rest_api_url",
+    "KV_REST_API_TOKEN": "@kv_rest_api_token",
+    "SOLANA_NETWORK": "devnet",
+    "SOLANA_RPC_URL": "https://api.devnet.solana.com",
+    "RATE_LIMIT_WINDOW_MS": "60000",
+    "RATE_LIMIT_MAX": "100",
+    "SESSION_TTL_SECONDS": "3600"
+  }
+}

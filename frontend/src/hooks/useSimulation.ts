@@ -6,7 +6,7 @@ import type {
   SimulationConfig, 
   SimulationState 
 } from '../types'
-import { generateId } from '../utils'
+import { generateId } from '../lib/utils'
 
 // Generate random traits
 const generateRandomTraits = (): AgentTraits => ({
