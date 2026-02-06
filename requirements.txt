@@ -1,9 +1,0 @@
-# ClawDNA Requirements
-# Python 3.8+
-
-# Web Demo
-Flask>=2.0.0
-
-# Optional: For extended features
-# numpy>=1.21.0  # (if adding advanced math operations)
-# pytest>=7.0.0  # (for testing)
