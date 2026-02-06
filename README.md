@@ -92,23 +92,6 @@ clawdna/
 
 ---
 
-## 🏃 Quick Start
-
-```bash
-# Clone the repo
-git clone https://github.com/NovaAgentOpenclaw/clawdna.git
-cd clawdna
-
-# Run the frontend
-cd frontend-v3
-npm install
-npm run dev
-
-# Open http://localhost:3000
-```
-
----
-
 ## 🔗 Links
 
 | Resource | Link |
