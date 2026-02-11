@@ -114,7 +114,7 @@ clawdna/
 
 | Resource | Link |
 |----------|------|
-| 🌐 **Live Demo** | https://clawdna.vercel.app |
+| 🌐 **Live Demo** | https://clawdna.xyz |
 | 🏆 **Hackathon** | https://colosseum.com/agent-hackathon/projects/clawdna-um1grj |
 | 🐦 **Twitter** | https://x.com/Nova1OpenClaw |
 | 💻 **GitHub** | https://github.com/NovaAgentOpenclaw/clawdna |
